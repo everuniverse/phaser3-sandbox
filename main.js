@@ -1,5 +1,5 @@
 var config = {
-type: Phaser.AUTO,
+  type: Phaser.AUTO,
   width: 800,
   height: 600,
   physics: {
@@ -17,18 +17,20 @@ type: Phaser.AUTO,
 };
 var player;
 var cursors;
-var jumpButton;
+var sounds = { player: { jump: null } };
 var game = new Phaser.Game(config);
 
 function preload() {
   this.load.image('sky', 'assets/sky.png');
   this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+  this.load.audio('jump', 'assets/jump.wav');
 }
 
 function create() {
   this.add.image(400, 300, 'sky');
-  
+
   player = this.physics.add.sprite(400, 100, 'dude');
+  player.body.setBounce(0.2);
   player.body.collideWorldBounds = true;
   this.anims.create({
     key: 'left',
@@ -49,6 +51,8 @@ function create() {
   });
 
   cursors = this.input.keyboard.createCursorKeys();
+
+  sounds.player.jump = this.sound.add('jump');
 }
 
 function update() {
@@ -61,5 +65,13 @@ function update() {
   } else {
     player.setVelocityX(0);
     player.anims.play('turn');
+  }
+
+  // TODO Constraint player.body.touching.down
+  if (cursors.up.isDown) {
+      player.setVelocityY(-330);
+      if (!sounds.player.jump.isPlaying) {
+        sounds.player.jump.play();
+      }
   }
 }
