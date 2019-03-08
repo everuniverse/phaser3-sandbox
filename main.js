@@ -17,7 +17,6 @@ var config = {
 };
 var player;
 var cursors;
-var sounds = { player: { jump: null } };
 var game = new Phaser.Game(config);
 
 function preload() {
@@ -52,7 +51,9 @@ function create() {
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  sounds.player.jump = this.sound.add('jump');
+  this.sfx = {
+    jump: this.sound.add('jump')
+  };
 }
 
 function update() {
@@ -66,12 +67,10 @@ function update() {
     player.setVelocityX(0);
     player.anims.play('turn');
   }
-
-  // TODO Constraint player.body.touching.down
   if (cursors.up.isDown) {
-      player.setVelocityY(-330);
-      if (!sounds.player.jump.isPlaying) {
-        sounds.player.jump.play();
-      }
+    player.setVelocityY(-330);
+    if (!this.sfx.jump.isPlaying) {
+      this.sfx.jump.play();
+    }
   }
 }
