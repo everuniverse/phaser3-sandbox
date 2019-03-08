@@ -15,14 +15,18 @@ var config = {
     update: update
   }
 };
+
 var player;
 var cursors;
+var bullets;
+
 var game = new Phaser.Game(config);
 
 function preload() {
   this.load.image('sky', 'assets/sky.png');
   this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
   this.load.audio('jump', 'assets/jump.wav');
+  this.load.image('bullet', 'assets/bullet.png');
 }
 
 function create() {
@@ -49,6 +53,31 @@ function create() {
     repeat: -1
   });
 
+  var Bullet = new Phaser.Class({
+    Extends: Phaser.GameObjects.Image,
+    initialize: function Bullet (scene) {
+      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+      this.speed = Phaser.Math.GetSpeed(400, 1);
+    },
+    shoot: function (x, y) {
+      this.setPosition(x, y);
+      this.setActive(true);
+      this.setVisible(true);
+    },
+    update: function (time, delta) {
+      this.x += this.speed * delta;
+      if (this.x < 0 || game.config.width < this.x) {
+        this.setActive(false);
+        this.setVisible(false);
+      }
+    }
+  });
+  bullets = this.add.group({
+    classType: Bullet,
+    maxSize: 1,
+    runChildUpdate: true
+  });
+
   cursors = this.input.keyboard.createCursorKeys();
 
   this.sfx = {
@@ -71,6 +100,12 @@ function update() {
     player.setVelocityY(-330);
     if (!this.sfx.jump.isPlaying) {
       this.sfx.jump.play();
+    }
+  }
+  if (cursors.down.isDown) {
+    var bullet = bullets.get();
+    if (bullet) {
+      bullet.shoot(player.x, player.y+15);
     }
   }
 }
