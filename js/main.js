@@ -15,12 +15,14 @@ var config = {
     update: update
   }
 };
-var game = new Phaser.Game(config);
+
 var player = null;
 var cursors = null;
 var bullets = null;
 var target = null;
 var debugTextFont = { fontFamily: 'Arial', fontSize: 12, color: '#000000' };
+
+var game = new Phaser.Game(config);
 
 function preload() {
   this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
@@ -37,8 +39,8 @@ function create() {
   target = this.add.image(game.config.width - 20, game.config.height - 20, 'target');
 
   player = this.physics.add.sprite(400, 100, 'dude');
-  player.body.setBounce(0.2);
   player.body.collideWorldBounds = true;
+  player.body.setBounce(0.2);
   cursors = this.input.keyboard.createCursorKeys();
   this.anims.create({
     key: 'left',
@@ -116,9 +118,7 @@ function update() {
     var bullet = bullets.get();
     if (bullet) {
       bullet.shoot(player.x, player.y+15);
-      // if (!this.sfx.shot.isPlaying) {
-        this.sfx.shot.play();
-      // }
+      this.sfx.shot.play();
     }
   }
 }
