@@ -15,26 +15,31 @@ var config = {
     update: update
   }
 };
-
-var player;
-var cursors;
-var bullets;
-
 var game = new Phaser.Game(config);
+var player = null;
+var cursors = null;
+var bullets = null;
+var target = null;
+var debugTextFont = { fontFamily: 'Arial', fontSize: 12, color: '#000000' };
 
 function preload() {
-  this.load.image('sky', 'assets/sky.png');
   this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-  this.load.audio('jump', 'assets/jump.wav');
+  this.load.image('sky', 'assets/sky.png');
   this.load.image('bullet', 'assets/bullet.png');
+  this.load.image('target', 'assets/star.png');
+  this.load.audio('jump', 'assets/jump.wav');
+  this.load.audio('shot', 'assets/shot.wav');
 }
 
 function create() {
   this.add.image(400, 300, 'sky');
 
+  target = this.add.image(game.config.width - 20, game.config.height - 20, 'target');
+
   player = this.physics.add.sprite(400, 100, 'dude');
   player.body.setBounce(0.2);
   player.body.collideWorldBounds = true;
+  cursors = this.input.keyboard.createCursorKeys();
   this.anims.create({
     key: 'left',
     frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -78,11 +83,16 @@ function create() {
     runChildUpdate: true
   });
 
-  cursors = this.input.keyboard.createCursorKeys();
+  // DEBUG: Not working. Need to be fixed.
+  this.physics.add.overlap(bullets, target, targetHit);
+  this.physics.add.overlap(player, target, collectTarget);
 
   this.sfx = {
-    jump: this.sound.add('jump')
+    jump: this.sound.add('jump'),
+    shot: this.sound.add('shot')
   };
+
+  text = this.add.text(10, 10, 'Hello, world!', debugTextFont);
 }
 
 function update() {
@@ -106,6 +116,20 @@ function update() {
     var bullet = bullets.get();
     if (bullet) {
       bullet.shoot(player.x, player.y+15);
+      // if (!this.sfx.shot.isPlaying) {
+        this.sfx.shot.play();
+      // }
     }
   }
+}
+
+function targetHit(bullet, target) {
+  console.log('targetHit');
+  target.disableBody(true, true);
+  bullet.setActive(false);
+  bullet.setVisible(false);
+}
+
+function collectTarget(player, target) {
+  target.disableBody(true, true);
 }
