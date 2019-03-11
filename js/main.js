@@ -36,7 +36,7 @@ function preload() {
 function create() {
   this.add.image(400, 300, 'sky');
 
-  target = this.add.image(game.config.width - 20, game.config.height - 20, 'target');
+  target = this.physics.add.staticImage(game.config.width - 20, game.config.height - 20, 'target');
 
   player = this.physics.add.sprite(400, 100, 'dude');
   player.body.collideWorldBounds = true;
@@ -61,9 +61,12 @@ function create() {
   });
 
   var Bullet = new Phaser.Class({
-    Extends: Phaser.GameObjects.Image,
+    Extends: Phaser.Physics.Arcade.Image,
     initialize: function Bullet (scene) {
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+      Phaser.Physics.Arcade.Image.call(this, scene, 0, 0, 'bullet');
+      scene.add.existing(this);
+      scene.physics.add.existing(this);
+      this.body.allowGravity = false;
       this.speed = Phaser.Math.GetSpeed(400, 1);
     },
     shoot: function (x, y) {
@@ -85,7 +88,6 @@ function create() {
     runChildUpdate: true
   });
 
-  // DEBUG: Not working. Need to be fixed.
   this.physics.add.overlap(bullets, target, targetHit);
   this.physics.add.overlap(player, target, collectTarget);
 
